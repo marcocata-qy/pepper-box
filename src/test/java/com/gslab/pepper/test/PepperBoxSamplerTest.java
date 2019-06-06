@@ -9,10 +9,7 @@ import com.gslab.pepper.util.PropsKeys;
 import kafka.server.KafkaConfig;
 import kafka.server.KafkaServer;
 import kafka.utils.TestUtils;
-import kafka.utils.ZKStringSerializer$;
-import kafka.utils.ZkUtils;
 import kafka.zk.EmbeddedZookeeper;
-import org.I0Itec.zkclient.ZkClient;
 import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
 import org.apache.jmeter.threads.JMeterContext;
@@ -30,44 +27,44 @@ import org.junit.Before;
 import org.junit.Test;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
+
 /**
  * Created by satish on 5/3/17.
+ * Modified by marco.catalano on 6/6/19.
  */
 public class PepperBoxSamplerTest {
 
-    private static final String ZKHOST = "127.0.0.1";
-    private static final String BROKERHOST = "127.0.0.1";
-    private static final String BROKERPORT = "9092";
+    private static final String ZK_HOST = "127.0.0.1";
+    private static final String BROKER_HOST = "127.0.0.1";
+    private static final String BROKER_PORT = "9092";
     private static final String TOPIC = "test";
 
-    private EmbeddedZookeeper zkServer = null;
+    private EmbeddedZookeeper zkServer = new EmbeddedZookeeper();
 
     private KafkaServer kafkaServer = null;
 
-    private ZkClient zkClient = null;
+    private JavaSamplerContext jmcx = null;
 
-    private  JavaSamplerContext jmcx = null;
+    private String brokerConnect = BROKER_HOST + ":" + BROKER_PORT;
+    private String zkConnect = ZK_HOST + ":" + zkServer.port();
 
     @Before
     public void setup() throws IOException {
 
-        zkServer = new EmbeddedZookeeper();
-
-        String zkConnect = ZKHOST + ":" + zkServer.port();
-        zkClient = new ZkClient(zkConnect, 30000, 30000, ZKStringSerializer$.MODULE$);
-        ZkUtils zkUtils = ZkUtils.apply(zkClient, false);
-
         Properties brokerProps = new Properties();
+        brokerProps.setProperty("bootstrap.servers", brokerConnect);
         brokerProps.setProperty("zookeeper.connect", zkConnect);
         brokerProps.setProperty("broker.id", "0");
         brokerProps.setProperty("offsets.topic.replication.factor", "1");
         brokerProps.setProperty("log.dirs", Files.createTempDirectory("kafka-").toAbsolutePath().toString());
-        brokerProps.setProperty("listeners", "PLAINTEXT://" + BROKERHOST +":" + BROKERPORT);
+        brokerProps.setProperty("listeners", "PLAINTEXT://" + brokerConnect);
         KafkaConfig config = new KafkaConfig(brokerProps);
         Time mock = new MockTime();
+
         kafkaServer = TestUtils.createServer(config, mock);
         //AdminUtils.createTopic(zkUtils, TOPIC, 1, 1, new Properties(), RackAwareMode.Disabled$.MODULE$);
 
@@ -84,8 +81,8 @@ public class PepperBoxSamplerTest {
         arguments.removeArgument(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG);
         arguments.removeArgument(ProducerKeys.KAFKA_TOPIC_CONFIG);
         arguments.removeArgument(ProducerKeys.ZOOKEEPER_SERVERS);
-        arguments.addArgument(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, BROKERHOST + ":" + BROKERPORT);
-        arguments.addArgument(ProducerKeys.ZOOKEEPER_SERVERS, ZKHOST + ":" + zkServer.port());
+        arguments.addArgument(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, brokerConnect);
+        arguments.addArgument(ProducerKeys.ZOOKEEPER_SERVERS, zkConnect);
         arguments.addArgument(ProducerKeys.KAFKA_TOPIC_CONFIG, TOPIC);
 
         jmcx = new JavaSamplerContext(arguments);
@@ -100,7 +97,7 @@ public class PepperBoxSamplerTest {
         sampler.runTest(jmcx);
 
         Properties consumerProps = new Properties();
-        consumerProps.setProperty("bootstrap.servers", BROKERHOST + ":" + BROKERPORT);
+        consumerProps.setProperty("bootstrap.servers", brokerConnect);
         consumerProps.setProperty("group.id", "group0");
         consumerProps.setProperty("client.id", "consumer0");
         consumerProps.setProperty("key.deserializer","org.apache.kafka.common.serialization.StringDeserializer");
@@ -108,7 +105,7 @@ public class PepperBoxSamplerTest {
         consumerProps.put("auto.offset.reset", "earliest");
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(consumerProps);
         consumer.subscribe(Arrays.asList(TOPIC));
-        ConsumerRecords<String, String> records = consumer.poll(30000);
+        ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(30000));
         Assert.assertEquals(1, records.count());
         for (ConsumerRecord<String, String> record : records){
             Assert.assertEquals("Failed to validate produced message", msgSent.toString(), record.value());
@@ -127,8 +124,8 @@ public class PepperBoxSamplerTest {
         arguments.removeArgument(ProducerKeys.KAFKA_TOPIC_CONFIG);
         arguments.removeArgument(ProducerKeys.ZOOKEEPER_SERVERS);
         arguments.removeArgument(PropsKeys.KEYED_MESSAGE_KEY);
-        arguments.addArgument(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, BROKERHOST + ":" + BROKERPORT);
-        arguments.addArgument(ProducerKeys.ZOOKEEPER_SERVERS, ZKHOST + ":" + zkServer.port());
+        arguments.addArgument(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, brokerConnect);
+        arguments.addArgument(ProducerKeys.ZOOKEEPER_SERVERS, zkConnect);
         arguments.addArgument(ProducerKeys.KAFKA_TOPIC_CONFIG, TOPIC);
         arguments.addArgument(PropsKeys.KEYED_MESSAGE_KEY,"YES");
 
@@ -150,7 +147,7 @@ public class PepperBoxSamplerTest {
         sampler.runTest(jmcx);
 
         Properties consumerProps = new Properties();
-        consumerProps.setProperty("bootstrap.servers", BROKERHOST + ":" + BROKERPORT);
+        consumerProps.setProperty("bootstrap.servers", brokerConnect);
         consumerProps.setProperty("group.id", "group0");
         consumerProps.setProperty("client.id", "consumer0");
         consumerProps.setProperty("key.deserializer","org.apache.kafka.common.serialization.StringDeserializer");
@@ -158,7 +155,7 @@ public class PepperBoxSamplerTest {
         consumerProps.put("auto.offset.reset", "earliest");
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(consumerProps);
         consumer.subscribe(Arrays.asList(TOPIC));
-        ConsumerRecords<String, String> records = consumer.poll(30000);
+        ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(30000));
         Assert.assertEquals(1, records.count());
         for (ConsumerRecord<String, String> record : records){
             Assert.assertEquals("Failed to validate key of produced message", keySent.toString(), record.key());
@@ -178,8 +175,8 @@ public class PepperBoxSamplerTest {
         arguments.removeArgument(ProducerKeys.ZOOKEEPER_SERVERS);
         arguments.removeArgument(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG);
         arguments.addArgument(ProducerKeys.KAFKA_TOPIC_CONFIG, TOPIC);
-        arguments.addArgument(ProducerKeys.ZOOKEEPER_SERVERS, ZKHOST + ":" + zkServer.port());
-        arguments.addArgument(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, BROKERHOST + ":" + BROKERPORT);
+        arguments.addArgument(ProducerKeys.ZOOKEEPER_SERVERS, zkConnect);
+        arguments.addArgument(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, brokerConnect);
         arguments.addArgument(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "com.gslab.pepper.input.serialized.ObjectSerializer");
 
         jmcx = new JavaSamplerContext(arguments);
@@ -196,7 +193,7 @@ public class PepperBoxSamplerTest {
         sampler.runTest(jmcx);
 
         Properties consumerProps = new Properties();
-        consumerProps.setProperty("bootstrap.servers", BROKERHOST + ":" + BROKERPORT);
+        consumerProps.setProperty("bootstrap.servers", brokerConnect);
         consumerProps.setProperty("group.id", "group0");
         consumerProps.setProperty("client.id", "consumer0");
         consumerProps.setProperty("key.deserializer","org.apache.kafka.common.serialization.StringDeserializer");
@@ -204,7 +201,7 @@ public class PepperBoxSamplerTest {
         consumerProps.put("auto.offset.reset", "earliest");
         KafkaConsumer<String, Message> consumer = new KafkaConsumer<>(consumerProps);
         consumer.subscribe(Arrays.asList(TOPIC));
-        ConsumerRecords<String, Message> records = consumer.poll(30000);
+        ConsumerRecords<String, Message> records = consumer.poll(Duration.ofMillis(30000));
         Assert.assertEquals(1, records.count());
         for (ConsumerRecord<String, Message> record : records){
             Assert.assertEquals("Failed to validate produced message", msgSent.getMessageBody(), record.value().getMessageBody());
@@ -225,8 +222,8 @@ public class PepperBoxSamplerTest {
         arguments.removeArgument(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG);
         arguments.removeArgument(PropsKeys.KEYED_MESSAGE_KEY);
         arguments.addArgument(ProducerKeys.KAFKA_TOPIC_CONFIG, TOPIC);
-        arguments.addArgument(ProducerKeys.ZOOKEEPER_SERVERS, ZKHOST + ":" + zkServer.port());
-        arguments.addArgument(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, BROKERHOST + ":" + BROKERPORT);
+        arguments.addArgument(ProducerKeys.ZOOKEEPER_SERVERS, zkConnect);
+        arguments.addArgument(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, brokerConnect);
         arguments.addArgument(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "com.gslab.pepper.input.serialized.ObjectSerializer");
         arguments.addArgument(PropsKeys.KEYED_MESSAGE_KEY, "YES");
         jmcx = new JavaSamplerContext(arguments);
@@ -251,7 +248,7 @@ public class PepperBoxSamplerTest {
         sampler.runTest(jmcx);
 
         Properties consumerProps = new Properties();
-        consumerProps.setProperty("bootstrap.servers", BROKERHOST + ":" + BROKERPORT);
+        consumerProps.setProperty("bootstrap.servers", brokerConnect);
         consumerProps.setProperty("group.id", "group0");
         consumerProps.setProperty("client.id", "consumer0");
         consumerProps.setProperty("key.deserializer","org.apache.kafka.common.serialization.StringDeserializer");
@@ -259,10 +256,10 @@ public class PepperBoxSamplerTest {
         consumerProps.put("auto.offset.reset", "earliest");
         KafkaConsumer<String, Message> consumer = new KafkaConsumer<>(consumerProps);
         consumer.subscribe(Arrays.asList(TOPIC));
-        ConsumerRecords<String, Message> records = consumer.poll(30000);
+        ConsumerRecords<String, Message> records = consumer.poll(Duration.ofMillis(30000));
         Assert.assertEquals(1, records.count());
         for (ConsumerRecord<String, Message> record : records){
-            Assert.assertEquals("Failed to validate key of produced message", keySent.toString(), record.key().toString());
+            Assert.assertEquals("Failed to validate key of produced message", keySent.toString(), record.key());
             Assert.assertEquals("Failed to validate value of produced message", valueSent.getMessageBody(), record.value().getMessageBody());
         }
 
@@ -273,9 +270,7 @@ public class PepperBoxSamplerTest {
     @After
     public void teardown(){
         kafkaServer.shutdown();
-        zkClient.close();
         zkServer.shutdown();
-
     }
 
 }

@@ -4,10 +4,7 @@ import com.gslab.pepper.PepperBoxLoadGenerator;
 import kafka.server.KafkaConfig;
 import kafka.server.KafkaServer;
 import kafka.utils.TestUtils;
-import kafka.utils.ZKStringSerializer$;
-import kafka.utils.ZkUtils;
 import kafka.zk.EmbeddedZookeeper;
-import org.I0Itec.zkclient.ZkClient;
 import org.apache.jmeter.threads.JMeterContext;
 import org.apache.jmeter.threads.JMeterContextService;
 import org.apache.jmeter.threads.JMeterVariables;
@@ -24,39 +21,37 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Properties;
 
 /**
  * Created by satish on 5/3/17.
+ * Modified by marco.catalano on 6/6/19.
  */
 public class PepperBoxLoadGenTest {
-    private static final String ZKHOST = "127.0.0.1";
-    private static final String BROKERHOST = "127.0.0.1";
-    private static final String BROKERPORT = "9092";
+    private static final String ZK_HOST = "127.0.0.1";
+    private static final String BROKER_HOST = "127.0.0.1";
+    private static final String BROKER_PORT = "9092";
     private static final String TOPIC = "test";
 
-    private EmbeddedZookeeper zkServer = null;
+    private EmbeddedZookeeper zkServer = new EmbeddedZookeeper();
 
     private KafkaServer kafkaServer = null;
 
-    private ZkClient zkClient = null;
+    private String brokerConnect = BROKER_HOST + ":" + BROKER_PORT;
+    private String zkConnect = ZK_HOST + ":" + zkServer.port();
 
     @Before
     public void setup() throws IOException {
 
-        zkServer = new EmbeddedZookeeper();
-
-        String zkConnect = ZKHOST + ":" + zkServer.port();
-        zkClient = new ZkClient(zkConnect, 30000, 30000, ZKStringSerializer$.MODULE$);
-        ZkUtils zkUtils = ZkUtils.apply(zkClient, false);
-
         Properties brokerProps = new Properties();
+        brokerProps.setProperty("bootstrap.server", brokerConnect);
         brokerProps.setProperty("zookeeper.connect", zkConnect);
         brokerProps.setProperty("broker.id", "0");
         brokerProps.setProperty("offsets.topic.replication.factor", "1");
         brokerProps.setProperty("log.dirs", Files.createTempDirectory("kafka-").toAbsolutePath().toString());
-        brokerProps.setProperty("listeners", "PLAINTEXT://" + BROKERHOST +":" + BROKERPORT);
+        brokerProps.setProperty("listeners", "PLAINTEXT://" + brokerConnect);
         KafkaConfig config = new KafkaConfig(brokerProps);
         Time mock = new MockTime();
         kafkaServer = TestUtils.createServer(config, mock);
@@ -77,21 +72,21 @@ public class PepperBoxLoadGenTest {
         File producerFile = File.createTempFile("producer", ".properties");
         producerFile.deleteOnExit();
         FileWriter producerPropsWriter = new FileWriter(producerFile);
-        producerPropsWriter.write(String.format(TestInputUtils.producerProps, BROKERHOST, BROKERPORT, ZKHOST, zkServer.port()));
+        producerPropsWriter.write(String.format(TestInputUtils.producerProps, BROKER_HOST, BROKER_PORT, ZK_HOST, zkServer.port()));
         producerPropsWriter.close();
 
         String vargs []  = new String[]{"--schema-file", schemaFile.getAbsolutePath(), "--producer-config-file", producerFile.getAbsolutePath(), "--throughput-per-producer", "10", "--test-duration", "1", "--num-producers", "1"};
         PepperBoxLoadGenerator.main(vargs);
 
         Properties consumerProps = new Properties();
-        consumerProps.setProperty("bootstrap.servers", BROKERHOST + ":" + BROKERPORT);
+        consumerProps.setProperty("bootstrap.servers", brokerConnect);
         consumerProps.setProperty("group.id", "group");
         consumerProps.setProperty("key.deserializer","org.apache.kafka.common.serialization.StringDeserializer");
         consumerProps.setProperty("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         consumerProps.put("auto.offset.reset", "earliest");
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(consumerProps);
         consumer.subscribe(Arrays.asList(TOPIC));
-        ConsumerRecords<String, String> records = consumer.poll(30000);
+        ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(30000));
         Assert.assertTrue("PepperBoxLoadGenerator validation failed", records.count() > 0);
 
     }
@@ -99,9 +94,7 @@ public class PepperBoxLoadGenTest {
     @After
     public void teardown(){
         kafkaServer.shutdown();
-        zkClient.close();
         zkServer.shutdown();
-
     }
 
 }

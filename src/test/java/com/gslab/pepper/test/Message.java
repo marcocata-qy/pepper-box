@@ -2,7 +2,7 @@ package com.gslab.pepper.test;
 
 import java.io.Serializable;
 
-public class Message  implements Serializable{
+public class Message implements Serializable {
 
     private long messageId;
     private String messageBody;
