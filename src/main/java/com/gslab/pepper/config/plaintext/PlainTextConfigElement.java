@@ -1,30 +1,26 @@
 package com.gslab.pepper.config.plaintext;
 
-
 import com.gslab.pepper.loadgen.BaseLoadGenerator;
 import com.gslab.pepper.loadgen.impl.PlaintTextLoadGenerator;
-import com.gslab.pepper.util.PropsKeys;
 import org.apache.jmeter.config.ConfigTestElement;
 import org.apache.jmeter.engine.event.LoopIterationEvent;
 import org.apache.jmeter.engine.event.LoopIterationListener;
 import org.apache.jmeter.testbeans.TestBean;
 import org.apache.jmeter.threads.JMeterContextService;
 import org.apache.jmeter.threads.JMeterVariables;
-import org.apache.jorphan.logging.LoggingManager;
-import org.apache.log.Logger;
-
-import javax.swing.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The PlainTextConfigElement custom jmeter config element. This class acts as plain text feeder to jmeter java sampler, it includes plaintext load generator which takes input schema and generates messages.
  *
- * @Author  Satish Bhor<satish.bhor@gslab.com>, Nachiket Kate <nachiket.kate@gslab.com>
- * @Version 1.0
- * @since 28/02/2017
+ * @Author  Satish Bhor<satish.bhor@gslab.com>, Nachiket Kate <nachiket.kate@gslab.com>, Marco Catalano <marco.catalano1992@gmail.com>
+ * @Version 1.0.1
+ * @since 05/06/2019
  */
 public class PlainTextConfigElement extends ConfigTestElement implements TestBean, LoopIterationListener {
 
-    private static final Logger log = LoggingManager.getLoggerForClass();
+    private static final Logger log = LoggerFactory.getLogger(PlainTextConfigElement.class);
 
     //Input schema template could be json, xml, csv or custom plain text format
     private String jsonSchema;
@@ -78,7 +74,6 @@ public class PlainTextConfigElement extends ConfigTestElement implements TestBea
     public void setGenerator(BaseLoadGenerator generator) {
         this.generator = generator;
     }
-
 
     public String getPlaceHolder() {
         return placeHolder;
