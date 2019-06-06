@@ -71,7 +71,7 @@
     <dependency>
       <groupId>org.apache.jmeter</groupId>
       <artifactId>ApacheJMeter_core</artifactId>
-      <version>5.1</version>
+      <version>3.1</version>
       <scope>provided</scope>
       <exclusions>
         <exclusion>
@@ -91,8 +91,12 @@
           <groupId>bsf</groupId>
         </exclusion>
         <exclusion>
+          <artifactId>avalon-framework</artifactId>
+          <groupId>avalon-framework</groupId>
+        </exclusion>
+        <exclusion>
           <artifactId>bsh</artifactId>
-          <groupId>org.apache-extras.beanshell</groupId>
+          <groupId>org.beanshell</groupId>
         </exclusion>
         <exclusion>
           <artifactId>bcmail-jdk15on</artifactId>
@@ -107,14 +111,6 @@
           <groupId>org.bouncycastle</groupId>
         </exclusion>
         <exclusion>
-          <artifactId>dec</artifactId>
-          <groupId>org.brotli</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>caffeine</artifactId>
-          <groupId>com.github.ben-manes.caffeine</groupId>
-        </exclusion>
-        <exclusion>
           <artifactId>commons-codec</artifactId>
           <groupId>commons-codec</groupId>
         </exclusion>
@@ -125,6 +121,10 @@
         <exclusion>
           <artifactId>commons-dbcp2</artifactId>
           <groupId>org.apache.commons</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>commons-httpclient</artifactId>
+          <groupId>commons-httpclient</groupId>
         </exclusion>
         <exclusion>
           <artifactId>commons-io</artifactId>
@@ -143,6 +143,10 @@
           <groupId>org.apache.commons</groupId>
         </exclusion>
         <exclusion>
+          <artifactId>commons-logging</artifactId>
+          <groupId>commons-logging</groupId>
+        </exclusion>
+        <exclusion>
           <artifactId>commons-math3</artifactId>
           <groupId>org.apache.commons</groupId>
         </exclusion>
@@ -155,20 +159,16 @@
           <groupId>org.apache.commons</groupId>
         </exclusion>
         <exclusion>
-          <artifactId>commons-text</artifactId>
-          <groupId>org.apache.commons</groupId>
-        </exclusion>
-        <exclusion>
           <artifactId>dnsjava</artifactId>
           <groupId>dnsjava</groupId>
         </exclusion>
         <exclusion>
-          <artifactId>groovy-all</artifactId>
-          <groupId>org.codehaus.groovy</groupId>
+          <artifactId>excalibur-logger</artifactId>
+          <groupId>excalibur-logger</groupId>
         </exclusion>
         <exclusion>
-          <artifactId>httpasyncclient</artifactId>
-          <groupId>org.apache.httpcomponents</groupId>
+          <artifactId>groovy-all</artifactId>
+          <groupId>org.codehaus.groovy</groupId>
         </exclusion>
         <exclusion>
           <artifactId>httpclient</artifactId>
@@ -180,10 +180,6 @@
         </exclusion>
         <exclusion>
           <artifactId>httpcore</artifactId>
-          <groupId>org.apache.httpcomponents</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>httpcore-nio</artifactId>
           <groupId>org.apache.httpcomponents</groupId>
         </exclusion>
         <exclusion>
@@ -201,6 +197,10 @@
         <exclusion>
           <artifactId>junit</artifactId>
           <groupId>junit</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>logkit</artifactId>
+          <groupId>logkit</groupId>
         </exclusion>
         <exclusion>
           <artifactId>jtidy</artifactId>
@@ -235,10 +235,6 @@
           <groupId>xalan</groupId>
         </exclusion>
         <exclusion>
-          <artifactId>Saxon-HE</artifactId>
-          <groupId>net.sf.saxon</groupId>
-        </exclusion>
-        <exclusion>
           <artifactId>xercesImpl</artifactId>
           <groupId>xerces</groupId>
         </exclusion>
@@ -249,14 +245,6 @@
         <exclusion>
           <artifactId>xmlgraphics-commons</artifactId>
           <groupId>org.apache.xmlgraphics</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>javax.activation-api</artifactId>
-          <groupId>javax.activation</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>javax.activation</artifactId>
-          <groupId>com.sun.activation</groupId>
         </exclusion>
         <exclusion>
           <artifactId>mail</artifactId>
@@ -311,35 +299,19 @@
           <groupId>com.fifesoft</groupId>
         </exclusion>
         <exclusion>
-          <artifactId>jcl-over-slf4j</artifactId>
-          <groupId>org.slf4j</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>log4j-api</artifactId>
-          <groupId>org.apache.logging.log4j</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>log4j-core</artifactId>
-          <groupId>org.apache.logging.log4j</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>log4j-slf4j-impl</artifactId>
-          <groupId>org.apache.logging.log4j</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>log4j-1.2-api</artifactId>
-          <groupId>org.apache.logging.log4j</groupId>
-        </exclusion>
-        <exclusion>
           <artifactId>freemarker</artifactId>
           <groupId>org.freemarker</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>hamcrest-core</artifactId>
+          <groupId>org.hamcrest</groupId>
         </exclusion>
       </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.jmeter</groupId>
       <artifactId>ApacheJMeter_java</artifactId>
-      <version>5.1</version>
+      <version>3.1</version>
       <scope>provided</scope>
       <exclusions>
         <exclusion>
@@ -363,8 +335,12 @@
           <groupId>bsf</groupId>
         </exclusion>
         <exclusion>
+          <artifactId>avalon-framework</artifactId>
+          <groupId>avalon-framework</groupId>
+        </exclusion>
+        <exclusion>
           <artifactId>bsh</artifactId>
-          <groupId>org.apache-extras.beanshell</groupId>
+          <groupId>org.beanshell</groupId>
         </exclusion>
         <exclusion>
           <artifactId>bcmail-jdk15on</artifactId>
@@ -379,14 +355,6 @@
           <groupId>org.bouncycastle</groupId>
         </exclusion>
         <exclusion>
-          <artifactId>dec</artifactId>
-          <groupId>org.brotli</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>caffeine</artifactId>
-          <groupId>com.github.ben-manes.caffeine</groupId>
-        </exclusion>
-        <exclusion>
           <artifactId>commons-codec</artifactId>
           <groupId>commons-codec</groupId>
         </exclusion>
@@ -397,6 +365,10 @@
         <exclusion>
           <artifactId>commons-dbcp2</artifactId>
           <groupId>org.apache.commons</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>commons-httpclient</artifactId>
+          <groupId>commons-httpclient</groupId>
         </exclusion>
         <exclusion>
           <artifactId>commons-io</artifactId>
@@ -415,6 +387,10 @@
           <groupId>org.apache.commons</groupId>
         </exclusion>
         <exclusion>
+          <artifactId>commons-logging</artifactId>
+          <groupId>commons-logging</groupId>
+        </exclusion>
+        <exclusion>
           <artifactId>commons-math3</artifactId>
           <groupId>org.apache.commons</groupId>
         </exclusion>
@@ -427,20 +403,16 @@
           <groupId>org.apache.commons</groupId>
         </exclusion>
         <exclusion>
-          <artifactId>commons-text</artifactId>
-          <groupId>org.apache.commons</groupId>
-        </exclusion>
-        <exclusion>
           <artifactId>dnsjava</artifactId>
           <groupId>dnsjava</groupId>
         </exclusion>
         <exclusion>
-          <artifactId>groovy-all</artifactId>
-          <groupId>org.codehaus.groovy</groupId>
+          <artifactId>excalibur-logger</artifactId>
+          <groupId>excalibur-logger</groupId>
         </exclusion>
         <exclusion>
-          <artifactId>httpasyncclient</artifactId>
-          <groupId>org.apache.httpcomponents</groupId>
+          <artifactId>groovy-all</artifactId>
+          <groupId>org.codehaus.groovy</groupId>
         </exclusion>
         <exclusion>
           <artifactId>httpclient</artifactId>
@@ -452,10 +424,6 @@
         </exclusion>
         <exclusion>
           <artifactId>httpcore</artifactId>
-          <groupId>org.apache.httpcomponents</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>httpcore-nio</artifactId>
           <groupId>org.apache.httpcomponents</groupId>
         </exclusion>
         <exclusion>
@@ -473,6 +441,10 @@
         <exclusion>
           <artifactId>junit</artifactId>
           <groupId>junit</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>logkit</artifactId>
+          <groupId>logkit</groupId>
         </exclusion>
         <exclusion>
           <artifactId>jtidy</artifactId>
@@ -507,10 +479,6 @@
           <groupId>xalan</groupId>
         </exclusion>
         <exclusion>
-          <artifactId>Saxon-HE</artifactId>
-          <groupId>net.sf.saxon</groupId>
-        </exclusion>
-        <exclusion>
           <artifactId>xercesImpl</artifactId>
           <groupId>xerces</groupId>
         </exclusion>
@@ -521,14 +489,6 @@
         <exclusion>
           <artifactId>xmlgraphics-commons</artifactId>
           <groupId>org.apache.xmlgraphics</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>javax.activation-api</artifactId>
-          <groupId>javax.activation</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>javax.activation</artifactId>
-          <groupId>com.sun.activation</groupId>
         </exclusion>
         <exclusion>
           <artifactId>mail</artifactId>
@@ -583,28 +543,12 @@
           <groupId>com.fifesoft</groupId>
         </exclusion>
         <exclusion>
-          <artifactId>jcl-over-slf4j</artifactId>
-          <groupId>org.slf4j</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>log4j-api</artifactId>
-          <groupId>org.apache.logging.log4j</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>log4j-core</artifactId>
-          <groupId>org.apache.logging.log4j</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>log4j-slf4j-impl</artifactId>
-          <groupId>org.apache.logging.log4j</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>log4j-1.2-api</artifactId>
-          <groupId>org.apache.logging.log4j</groupId>
-        </exclusion>
-        <exclusion>
           <artifactId>freemarker</artifactId>
           <groupId>org.freemarker</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>hamcrest-core</artifactId>
+          <groupId>org.hamcrest</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -636,7 +580,7 @@
     <kafka.version>2.2.0</kafka.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <jmeter.lib.scope>provided</jmeter.lib.scope>
-    <jmeter.version>5.1</jmeter.version>
+    <jmeter.version>3.1</jmeter.version>
     <jdk.version>1.8</jdk.version>
     <joda-time.version>2.9.7</joda-time.version>
   </properties>
